@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Count To Anything</title>
+  <style>
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+
+    .counter {
+      /* margin-top: 100px; */
+    }
+
+    .number-input {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .start-stop-buttons {
+      margin-top: -21.2px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Count To <span class="max-number">Anything</span></h1>
+  <h1 class="counter"></h1>
+  <div class="number-input">
+    <input class="input-field">
+    <button class="submit-button">Submit</button>  
+  </div>
+  <div class="start-stop-buttons">
+    <button class="start-stop-button start">Start</button>  
+    <button class="reset-button">Reset</button>
+  </div>
+  <script>
+    let numberDisplayed = document.querySelector('.counter');
+    let startStopButton = document.querySelector('.start-stop-button');
+    let count = localStorage.getItem('count') || 0;
+    let counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
+    let intervalId;
+    let maxNumberSpanElement = document.querySelector('.max-number');
+    
+    {
+      let maxNumber = Number(localStorage.getItem('maxNumber'));
+      
+      maxNumberSpanElement.innerHTML = Number(localStorage.getItem('maxNumber')).toLocaleString() || "Anything";
+      if (count >= maxNumber) {
+        numberDisplayed.innerHTML = maxNumber.toLocaleString();
+      } else {
+        numberDisplayed.innerHTML = Number(localStorage.getItem('count')).toLocaleString() || "Anything";
+      }
+    }
+
+    function updateCount() {
+      let startTime = JSON.parse(localStorage.getItem('startTime'));
+      let currentTime = Date.now();
+      count = Math.round((currentTime - startTime) / 1000);
+      console.log('startTime: ' + startTime);
+      console.log('currentTime: ' + currentTime);
+    }
+
+    if (counterIsRunning) {
+      updateCount();
+      startCounter();
+      startStopButton.classList.remove('start');
+      startStopButton.innerHTML = 'Stop';
+    }
+    
+    startStopButton.addEventListener('click', () => {
+      if (startStopButton.classList.contains('start')) {
+        startStopButton.classList.remove('start');
+        startStopButton.innerHTML = 'Stop';
+        startCounter();
+        let timeStamp = Date.now();
+        localStorage.setItem('counterIsRunning', JSON.stringify(true));
+        if (count === 0) {
+          localStorage.setItem('startTime', timeStamp.toString());
+        }
+      } else {
+        stopCounter();
+      }
+    });
+
+    let resetButton = document.querySelector('.reset-button');
+    resetButton.addEventListener('click', () => {
+      // document.querySelector('.max-number').innerHTML = "Anything";
+      localStorage.removeItem('maxNumber');
+      resetCounter();
+    });
+
+    let submitButton = document.querySelector('.submit-button');
+    submitButton.addEventListener('click', () => {
+      let maxNumberSpanElement = document.querySelector('.max-number');
+      let inputElement = document.querySelector('.input-field');
+      let maxNumberString = inputElement.value;
+      maxNumberSpanElement.innerHTML = Number(maxNumberString).toLocaleString();
+      inputElement.value = '';
+      resetCounter();
+      localStorage.setItem('maxNumber', maxNumberString);
+    });
+
+    function startCounter() {
+        intervalId = setInterval(() => {
+        count++;
+        numberDisplayed.innerHTML = count.toLocaleString();
+        localStorage.setItem('count', count);
+
+        let maxNumber = Number(localStorage.getItem('maxNumber'));
+        if (count >= maxNumber) {
+          stopCounter();
+          numberDisplayed.innerHTML = Number(maxNumber).toLocaleString(); 
+        }
+      }, 1000);
+    }
+
+    function stopCounter() {
+      startStopButton.classList.add('start');
+      startStopButton.innerHTML = 'Start';
+      clearInterval(intervalId);
+      localStorage.setItem('counterIsRunning', JSON.stringify(false));
+    }
+
+    function resetCounter() {
+      stopCounter();
+      document.querySelector('.counter').innerHTML = 0;
+      count = 0;
+      localStorage.setItem('count', count.toString());
+    }
+  </script>
+</body>
+</html>
