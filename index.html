@@ -45,13 +45,18 @@
     let maxNumberSpanElement = document.querySelector('.max-number');
     
     {
-      let maxNumber = Number(localStorage.getItem('maxNumber'));
+      let maxNumber = localStorage.getItem('maxNumber'); 
       
-      maxNumberSpanElement.innerHTML = Number(localStorage.getItem('maxNumber')).toLocaleString() || "Anything";
-      if (count >= maxNumber) {
+      if (maxNumber != null) {
+        maxNumberSpanElement.innerHTML = Number(maxNumber).toLocaleString()
+      } else {
+        maxNumberSpanElement.innerHTML = "Anything";
+      }
+      
+      if (maxNumber != null && count >= maxNumber) {
         numberDisplayed.innerHTML = maxNumber.toLocaleString();
       } else {
-        numberDisplayed.innerHTML = Number(localStorage.getItem('count')).toLocaleString() || "Anything";
+        numberDisplayed.innerHTML = Number(localStorage.getItem('count')).toLocaleString();
       }
     }
 
