@@ -87,7 +87,7 @@
 
     let resetButton = document.querySelector('.reset-button');
     resetButton.addEventListener('click', () => {
-      // document.querySelector('.max-number').innerHTML = "Anything";
+      document.querySelector('.max-number').innerHTML = "Anything";
       localStorage.removeItem('maxNumber');
       resetCounter();
     });
