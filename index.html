@@ -10,17 +10,13 @@
       text-align: center;
     }
 
-    .counter {
-      /* margin-top: 100px; */
+    .start-stop-buttons {
+      margin-top: 30px;
+      text-align: center;
     }
 
     .number-input {
       margin-top: 30px;
-      text-align: left;
-    }
-
-    .start-stop-buttons {
-      margin-top: -21.2px;
       text-align: center;
     }
   </style>
@@ -28,17 +24,21 @@
 <body>
   <h1>Count To <span class="max-number">Anything</span></h1>
   <h1 class="counter"></h1>
+  <div class="start-stop-buttons">
+    <button class="slower-button"><<</button>
+    <button class="start-stop-button start">Start</button>
+    <button class="faster-button">>></button>
+    <button class="reset-button">Reset</button>
+  </div>
   <div class="number-input">
     <input class="input-field">
-    <button class="submit-button">Submit</button>  
-  </div>
-  <div class="start-stop-buttons">
-    <button class="start-stop-button start">Start</button>  
-    <button class="reset-button">Reset</button>
+    <button class="submit-button">Enter</button>  
   </div>
   <script>
     let numberDisplayed = document.querySelector('.counter');
+    let slowerButton = document.querySelector('.slower-button');
     let startStopButton = document.querySelector('.start-stop-button');
+    let fasterButton = document.querySelector('.faster-button');
     let count = localStorage.getItem('count') || 0;
     let counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
     let intervalId;
@@ -53,7 +53,7 @@
         maxNumberSpanElement.innerHTML = "Anything";
       }
       
-      if (maxNumber != null && count >= maxNumber) {
+      if (maxNumber != null && count >= Number(maxNumber)) {
         numberDisplayed.innerHTML = maxNumber.toLocaleString();
       } else {
         numberDisplayed.innerHTML = Number(localStorage.getItem('count')).toLocaleString();
@@ -63,29 +63,64 @@
     function updateCount() {
       let startTime = JSON.parse(localStorage.getItem('startTime'));
       let currentTime = Date.now();
-      count = Math.round((currentTime - startTime) / 1000);
+      let milliseconds = Number(localStorage.getItem('milliseconds'));
+      count = Math.round((currentTime - startTime) / milliseconds);
       console.log('startTime: ' + startTime);
       console.log('currentTime: ' + currentTime);
     }
 
     if (counterIsRunning) {
       updateCount();
-      startCounter();
+      let milliseconds = Number(localStorage.getItem('milliseconds'));
+      startCounter(milliseconds);
       startStopButton.classList.remove('start');
       startStopButton.innerHTML = 'Stop';
     }
+
+    slowerButton.addEventListener('click', () => {
+      counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
+
+      if (counterIsRunning) {
+        stopCounter();
+        let milliseconds = Number(localStorage.getItem('milliseconds'));
+        if (milliseconds < 1000) {
+          milliseconds *= 10;
+        }
+        startCounter(milliseconds);
+        localStorage.setItem('milliseconds', milliseconds.toString());
+      }
+    });
+
+    fasterButton.addEventListener('click', () => {
+      counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
+
+      if (counterIsRunning) {
+        stopCounter();
+        let milliseconds = Number(localStorage.getItem('milliseconds'));
+        if (milliseconds > 1) {
+          milliseconds /= 10;
+        }
+        startCounter(milliseconds);
+        localStorage.setItem('milliseconds', milliseconds.toString());
+      }
+    });
     
     startStopButton.addEventListener('click', () => {
       if (startStopButton.classList.contains('start')) {
         startStopButton.classList.remove('start');
         startStopButton.innerHTML = 'Stop';
-        startCounter();
-        let timeStamp = Date.now();
-        localStorage.setItem('counterIsRunning', JSON.stringify(true));
         if (count === 0) {
+          let timeStamp = Date.now();
           localStorage.setItem('startTime', timeStamp.toString());
+          startCounter(1000);
+          localStorage.setItem('milliseconds', '1000');
+        } else {
+          let milliseconds = localStorage.getItem('milliseconds');
+          startCounter(Number(milliseconds));
         }
       } else {
+        startStopButton.classList.add('start');
+        startStopButton.innerHTML = 'Start';
         stopCounter();
       }
     });
@@ -108,8 +143,10 @@
       localStorage.setItem('maxNumber', maxNumberString);
     });
 
-    function startCounter() {
-        intervalId = setInterval(() => {
+    function startCounter(milliseconds) {
+      localStorage.setItem('counterIsRunning', JSON.stringify(true));
+
+      intervalId = setInterval(() => {
         count++;
         numberDisplayed.innerHTML = count.toLocaleString();
         localStorage.setItem('count', count);
@@ -119,12 +156,10 @@
           stopCounter();
           numberDisplayed.innerHTML = Number(maxNumber).toLocaleString(); 
         }
-      }, 1000);
+      }, milliseconds);
     }
 
     function stopCounter() {
-      startStopButton.classList.add('start');
-      startStopButton.innerHTML = 'Start';
       clearInterval(intervalId);
       localStorage.setItem('counterIsRunning', JSON.stringify(false));
     }
