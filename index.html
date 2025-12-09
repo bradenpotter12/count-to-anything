@@ -39,7 +39,7 @@
     let slowerButton = document.querySelector('.slower-button');
     let startStopButton = document.querySelector('.start-stop-button');
     let fasterButton = document.querySelector('.faster-button');
-    let count = localStorage.getItem('count') || 0;
+    let count = Number(localStorage.getItem('count'));
     let counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
     let intervalId;
     let maxNumberSpanElement = document.querySelector('.max-number');
@@ -63,8 +63,10 @@
     function updateCount() {
       let startTime = JSON.parse(localStorage.getItem('startTime'));
       let currentTime = Date.now();
+      let timeStampWhenNewCounterStarted = JSON.parse(localStorage.getItem('timeStampWhenNewCounterStarted')) || startTime;
+      let countWhenNewCounterStarted = Number(localStorage.getItem('countWhenNewCounterStarted'));
       let milliseconds = Number(localStorage.getItem('milliseconds'));
-      count = Math.round((currentTime - startTime) / milliseconds);
+      count = Math.round((currentTime - timeStampWhenNewCounterStarted) / milliseconds) + countWhenNewCounterStarted;
       console.log('startTime: ' + startTime);
       console.log('currentTime: ' + currentTime);
     }
@@ -88,6 +90,9 @@
         }
         startCounter(milliseconds);
         localStorage.setItem('milliseconds', milliseconds.toString());
+        count = localStorage.getItem('count');
+        localStorage.setItem('countWhenNewCounterStarted', count);
+        localStorage.setItem('timeStampWhenNewCounterStarted', Date.now().toString());
       }
     });
 
@@ -102,6 +107,9 @@
         }
         startCounter(milliseconds);
         localStorage.setItem('milliseconds', milliseconds.toString());
+        count = localStorage.getItem('count');
+        localStorage.setItem('countWhenNewCounterStarted', count);
+        localStorage.setItem('timeStampWhenNewCounterStarted', Date.now().toString());
       }
     });
     
@@ -130,6 +138,8 @@
       document.querySelector('.max-number').innerHTML = "Anything";
       localStorage.removeItem('maxNumber');
       resetCounter();
+      localStorage.removeItem('countWhenNewCounterStarted');
+      localStorage.removeItem('timeStampWhenNewCounterStarted');
     });
 
     let submitButton = document.querySelector('.submit-button');
