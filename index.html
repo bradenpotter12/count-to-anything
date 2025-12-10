@@ -140,6 +140,8 @@
       resetCounter();
       localStorage.removeItem('countWhenNewCounterStarted');
       localStorage.removeItem('timeStampWhenNewCounterStarted');
+      startStopButton.classList.add('start');
+      startStopButton.innerHTML = 'Start';
     });
 
     let submitButton = document.querySelector('.submit-button');
@@ -164,7 +166,9 @@
         let maxNumber = Number(localStorage.getItem('maxNumber'));
         if (count >= maxNumber) {
           stopCounter();
-          numberDisplayed.innerHTML = Number(maxNumber).toLocaleString(); 
+          numberDisplayed.innerHTML = Number(maxNumber).toLocaleString();
+          startStopButton.classList.add('start');
+          startStopButton.innerHTML = 'Start'; 
         }
       }, milliseconds);
     }
