@@ -49,14 +49,15 @@
     <button class="submit-button">Enter</button>  
   </div>
   <script>
+    // Elements
+    let maxNumberSpanElement = document.querySelector('.max-number');
     let numberDisplayed = document.querySelector('.counter');
-    let slowerButton = document.querySelector('.slower-button');
     let startStopButton = document.querySelector('.start-stop-button');
-    let fasterButton = document.querySelector('.faster-button');
+
+    // State Data
     let count = Number(localStorage.getItem('count'));
     let counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
     let intervalId;
-    let maxNumberSpanElement = document.querySelector('.max-number');
     
     {
       let maxNumber = localStorage.getItem('maxNumber'); 
@@ -74,17 +75,6 @@
       }
     }
 
-    function updateCount() {
-      let startTime = JSON.parse(localStorage.getItem('startTime'));
-      let currentTime = Date.now();
-      let timeStampWhenNewCounterStarted = JSON.parse(localStorage.getItem('timeStampWhenNewCounterStarted')) || startTime;
-      let countWhenNewCounterStarted = Number(localStorage.getItem('countWhenNewCounterStarted'));
-      let milliseconds = Number(localStorage.getItem('milliseconds'));
-      count = Math.round((currentTime - timeStampWhenNewCounterStarted) / milliseconds) + countWhenNewCounterStarted;
-      console.log('startTime: ' + startTime);
-      console.log('currentTime: ' + currentTime);
-    }
-
     if (counterIsRunning) {
       updateCount();
       let milliseconds = Number(localStorage.getItem('milliseconds'));
@@ -93,6 +83,7 @@
       startStopButton.innerHTML = 'Stop';
     }
 
+    let slowerButton = document.querySelector('.slower-button');
     slowerButton.addEventListener('click', () => {
       counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
 
@@ -110,6 +101,7 @@
       }
     });
 
+    let fasterButton = document.querySelector('.faster-button');
     fasterButton.addEventListener('click', () => {
       counterIsRunning = JSON.parse(localStorage.getItem('counterIsRunning'));
 
@@ -160,7 +152,6 @@
 
     let submitButton = document.querySelector('.submit-button');
     submitButton.addEventListener('click', () => {
-      let maxNumberSpanElement = document.querySelector('.max-number');
       let inputElement = document.querySelector('.input-field');
       let maxNumberString = inputElement.value;
       maxNumberSpanElement.innerHTML = Number(maxNumberString).toLocaleString();
@@ -168,6 +159,17 @@
       resetCounter();
       localStorage.setItem('maxNumber', maxNumberString);
     });
+
+    function updateCount() {
+      let startTime = JSON.parse(localStorage.getItem('startTime'));
+      let currentTime = Date.now();
+      let timeStampWhenNewCounterStarted = JSON.parse(localStorage.getItem('timeStampWhenNewCounterStarted')) || startTime;
+      let countWhenNewCounterStarted = Number(localStorage.getItem('countWhenNewCounterStarted'));
+      let milliseconds = Number(localStorage.getItem('milliseconds'));
+      count = Math.round((currentTime - timeStampWhenNewCounterStarted) / milliseconds) + countWhenNewCounterStarted;
+      console.log('startTime: ' + startTime);
+      console.log('currentTime: ' + currentTime);
+    }
 
     function startCounter(milliseconds) {
       localStorage.setItem('counterIsRunning', JSON.stringify(true));
